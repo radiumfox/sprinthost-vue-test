@@ -2,20 +2,24 @@
   <h1 class="app__title">Смена пароля</h1>
   <div class="app__wrapper">
 
-    <form class="form" action="#" method="post" @submit="checkForm">
+    <form class="form" action="#" method="post" @submit.prevent="submitHandler">
       
-      <FormControl v-model="newPassword" labelText="Новый пароль" id="new-password" placeholder="Введите новый пароль" />
-      <FormControl v-model="newPasswordRepeat" labelText="Повторите новый пароль" id="new-password-repeat" placeholder="Повторите новый пароль" />
+      <FormControl 
+        :error="errors.newPassword"
+        v-model:value="newPassword" 
+        labelText="Новый пароль" 
+        id="new-password" 
+        placeholder="Введите новый пароль"/>
+      <FormControl 
+        :error="errors.newPasswordRepeat"
+        v-model:value="newPasswordRepeat"  
+        labelText="Повторите новый пароль" 
+        id="new-password-repeat" 
+        placeholder="Повторите новый пароль" />
 
       <Checkbox checkboxText="Завершить сеансы на других устройствах" id="end-sessions"/>
 
-      <div class="form__errors-wrap" v-if="errors.length">
-        <ul class="form__errors">
-          <li class="form__error" v-bind:key="error" v-for="error in errors">{{ error }}</li>
-        </ul>
-      </div>
-
-      <Button submitButtonName="Сменить пароль" />
+      <SubmitButton submitButtonName="Сменить пароль" />
     </form>
 
     <div class="notion">
@@ -23,25 +27,36 @@
       <p class="notion__text">Данные меры цифровой безопасности помогают предотвратить взлом профиля.</p>
     </div>
 
-    <div class="modal" v-on:click="closeModalWindow">
+    <div class="modal" v-on:click="closeModal">
       <button 
         class="modal__cross"
         type="button" 
         aria-label="Закрыть"
-        v-on:click="closeModalWindow">
+        v-on:click="closeModal">
       </button>
       <div class="modal__form-wrapper" v-on:click.stop>
+        
         <button 
           class="modal__close" 
           type="button" 
-          v-on:click="closeModalWindow">
+          v-on:click="closeModal">
           {{getText()}}
         </button>
         <p class="modal__warning">Рекомендуем сменить пароль, если заметили подозрительную активность в профиле</p>
-        <form class="modal__form form" action="#" method="post" @submit="checkForm">
+        <form class="modal__form form" action="#" method="post" @submit.prevent="submitHandler">
          
-          <FormControl className="modal__form-control" labelText="Новый пароль" id="new-password" placeholder="Введите новый пароль" />
-          <FormControl className="modal__form-control" labelText="Повторите новый пароль" id="new-password-repeat" placeholder="Повторите новый пароль" />
+          <FormControl
+            v-model:value="newPasswordRepeat" 
+            className="modal__form-control" 
+            labelText="Новый пароль" 
+            id="new-password" 
+            placeholder="Введите новый пароль" />
+          <FormControl 
+            v-model:value="newPasswordRepeat"
+            className="modal__form-control" 
+            labelText="Повторите новый пароль" 
+            id="new-password-repeat" 
+            placeholder="Повторите новый пароль" />
 
           <Checkbox checkboxText="Выйти со всех других устройств" id="end-sessions-modal" checked/>
            <div class="form__errors-wrap" v-if="errors.length">
@@ -50,8 +65,9 @@
             </ul>
           </div>
 
-          <Button submitButtonName="Сменить пароль" />
+          <SubmitButton v-on:click="showMessage" submitButtonName="Сменить пароль" />
         </form>
+        <SuccessMessage v-if="isSubmit" />
       </div>
     </div>
   </div>
@@ -75,69 +91,84 @@
 <script>
 import FormControl from './components/FormControl.vue';
 import Checkbox from './components/Checkbox.vue';
-import Button from './components/Button.vue';
+import SubmitButton from './components/SubmitButton.vue';
+import SuccessMessage from './components/SuccessMessage.vue';
 
 export default {
   name: 'App',
   components: {
     FormControl,
     Checkbox,
-    Button,
+    SubmitButton,
+    SuccessMessage
   },
-  data: function() {
+  data() {
     return {
-      getText: function() {
+      getText() {
         if(window.innerWidth < 751) {
           return 'Назад'
         } 
         return 'Закрыть'
       },
-      errors: [],
-      newPassword: null,
-      newPasswordRepeat: null,
-      checkedValue: null,
+
+      isSubmit: false,
       regExp: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      newPassword: '',
+      newPasswordRepeat: '',
+      errors: {
+        newPassword: null,
+        newPasswordRepeat: null,
+      }
     }
   },
   methods: {
-    closeModalWindow: function() {
+    openModal() {
+      document.querySelector('.modal').classList.add('modal--show');
+      document.querySelector('.page-body').classList.add('page-body--overflow-hidden');
+    },
+
+    closeModal() {
       document.querySelector('.modal').classList.remove('modal--show');
       document.querySelector('.page-body').classList.remove('page-body--overflow-hidden');
     },
 
-    openModal: function () {
-      document.querySelector('.modal').classList.add('modal--show');
-      document.querySelector('.page-body').classList.add('page-body--overflow-hidden');
-      
-    },
+    formIsValid() {
+      let isValid = true
 
-    checkForm: function (evt) {
-      const newPassword = document.getElementById('new-password');
-      const newPasswordRepeat = document.getElementById('new-password-repeat');
-
-      if (newPassword.value && newPasswordRepeat.value && (this.regExp.test(newPassword.value))) {
-        this.openModal();
-        evt.preventDefault();
+      if (!this.newPassword) {
+        this.errors.newPassword = 'Введите пароль'
+        isValid = false
+      } else if(!(this.regExp.test(this.newPassword))) {
+        this.errors.newPassword = 'Пароль должен состоять как минимум из 8 символов, иметь хотя бы одну букву и одно число'
+        isValid = false
       } else {
-        evt.preventDefault();
+        this.errors.newPassword = null
       }
 
-      this.errors = [];
+      if(this.newPassword && this.newPasswordRepeat && (this.newPasswordRepeat !== this.newPassword)) {
+        this.errors.newPasswordRepeat = 'Введенные пароли не совпадают'
+        isValid = false
+      } else if (!this.newPasswordRepeat) {
+        this.errors.newPasswordRepeat = 'Повторите пароль'
+        isValid = false
+      } else {
+        this.errors.newPasswordRepeat = null
+      }
 
-      if (!newPassword.value) {
-        this.errors.push('— Введите пароль');
-      }
-      if (newPassword.value && !newPasswordRepeat.value) {
-        this.errors.push('— Повторите пароль');
-      }
-      if(!(newPassword.value === newPasswordRepeat.value)){
-        this.errors.push('— Пароли не совпадают');
-      }
-      if(!(this.regExp.test(newPassword.value))){
-        this.errors.push('— Пароль должен состоять как минимум из 8 символов, иметь хотя бы одну букву и одно число');
+      return isValid
+    },
+
+    submitHandler() {
+      if (this.formIsValid()) {
+        this.openModal();
       }
     },
 
+    showMessage() {
+      const forms = document.querySelectorAll('.form');
+      this.isSubmit = true;
+      forms.forEach(form => form.reset());
+    }
   }
 };
 </script>

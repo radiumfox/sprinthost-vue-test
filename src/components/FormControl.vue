@@ -3,29 +3,34 @@
     <label class="form__label" v-bind:for="id">{{labelText}}</label>
     <input 
       class="form__input"
-      v-bind:id="id" 
       type="text" 
+      v-bind:id="id" 
       v-bind:placeholder="placeholder"
+      :value="value"
+      @input="change"
     />
-    </div>
+    <small class="form__control-alert" v-if="error">{{ error }}</small>
+  </div>
 </template>
 
 <script>
 
 export default {
-  name: 'FormControl',
+  emits: ['update:value'],
   props: {
+    value: String,
     labelText: String,
     placeholder: String,
     id: String,
     className: String,
+    error: String
+  },
+
+  methods: {
+    change(event) {
+      this.$emit('update:value', event.target.value)
+    }
   },
 }
 
 </script>
-
-<style lang="scss">
-// @import '../sass/style.scss';
-// @import '../sass/form.scss';
-
-</style>
