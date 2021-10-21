@@ -1,11 +1,11 @@
 <template>
-  <div class="form__control" v-bind:class="className">
-    <label class="form__label" v-bind:for="id">{{labelText}}</label>
+  <div class="form__control" :class="className">
+    <label class="form__label" :for="id">{{labelText}}</label>
     <input 
       class="form__input"
       type="text" 
-      v-bind:id="id" 
-      v-bind:placeholder="placeholder"
+      :id="id" 
+      :placeholder="placeholder"
       :value="value"
       @input="change"
     />
@@ -16,6 +16,7 @@
 <script>
 
 export default {
+  name: 'FormControl',
   emits: ['update:value'],
   props: {
     value: String,

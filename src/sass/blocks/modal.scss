@@ -55,6 +55,11 @@
     transform: rotate(-45deg);
   }
 
+  &:hover::before,
+  &:hover::after {
+    background-color: rgba($basic-light, 0.7);
+  }
+
   @media(max-width: $mobile-width-only) {
     display: none;
   }
@@ -67,7 +72,7 @@
   cursor: pointer;
   display: flex;
   margin-left: auto;
-  padding: 0 0 2px;
+  padding: 0 0 1px;
   color: $special-grey;
   border-bottom: 1px dashed $accent-special;
 
@@ -95,7 +100,7 @@
   position: relative;
 }
 
-.modal__form-wrapper {
+.modal__wrapper {
   margin: 266px auto 0;
   padding: 31px 32px 32px;
   background-color: $basic-light;
@@ -119,7 +124,7 @@
   @include font(22px, 24px, 700);
   color: $basic-dark;
   margin: 0;
-  padding: 23px 0 22px;
+  padding: 24px 0 22px;
 }
 
 .modal .form__label--checkbox {

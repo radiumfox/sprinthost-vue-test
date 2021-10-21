@@ -1,14 +1,14 @@
 .info__wrapper {
   max-width: 578px;
-  padding-top: 65px;
+  padding-top: 64px;
   
   &--for-devs {
     padding-right: 300px;
     background-image: url("assets/illustration.svg");
     background-repeat: no-repeat;
-    background-position: right 100px;
+    background-position: right 101px;
     padding-bottom: 158px;
-    padding-top: 63px;
+    padding-top: 64px;
   }
 
   @media(max-width: $mobile-width-only) {
@@ -19,7 +19,7 @@
       padding-right: 0;
       padding-top: 248px;
       padding-bottom: 128px;
-      background-position: right 102px;
+      background-position: right 101px;
     }
   }
 }
@@ -46,7 +46,7 @@
 }
 
 .info__wrapper--for-devs .info__text {
-  padding-bottom: 22px;
+  padding-bottom: 24px;
 
   @media(max-width: $mobile-width-only) {
     &:last-of-type {
@@ -64,13 +64,14 @@
   border-radius: 4px;
   display: inline-block;
   vertical-align: middle;
+  max-width: 254px;
 
   &:hover {
-    color: rgba($basic-darkest, 0.8);
+    color: rgba($basic-darkest, 0.7);
   }
 
   &--action {
-    padding: 7px 54px 7px 15px;
+    padding: 7px 54px 6px 15px;
     background-image: url("assets/action-arrow.svg");
     background-repeat: no-repeat;
     background-position: 92% 8px;
@@ -96,6 +97,9 @@
   padding-bottom: 3px;
   margin-left: 24px;
   position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 150px;
 
   &::before {
     content: "";
@@ -108,12 +112,12 @@
   }
 
   &:hover {
-    color: rgba($accent-special, 0.8);
-    border-color: rgba($accent-special, 0.8);
+    color: rgba($accent-special, 0.7);
   }
 
   @media(max-width: $mobile-width-only) {
     margin-left: 0;
     max-width: 130px;
+    padding-bottom: 4px;
   }
 }

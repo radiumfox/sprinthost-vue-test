@@ -2,7 +2,7 @@
   <h1 class="app__title">Смена пароля</h1>
   <div class="app__wrapper">
 
-    <form class="form" action="#" method="post" @submit.prevent="submitHandler">
+    <form class="form" action="#" method="post" @submit.prevent="onFormSubmit">
       
       <FormControl 
         :error="errors.newPassword"
@@ -27,47 +27,45 @@
       <p class="notion__text">Данные меры цифровой безопасности помогают предотвратить взлом профиля.</p>
     </div>
 
-    <div class="modal" v-on:click="closeModal">
+    <div class="modal" @click="closeModal" ref="modalWindow">
+
       <button 
         class="modal__cross"
         type="button" 
         aria-label="Закрыть"
-        v-on:click="closeModal">
+        @click="closeModal">
       </button>
-      <div class="modal__form-wrapper" v-on:click.stop>
-        
+
+      <div class="modal__wrapper" @click.stop>
         <button 
           class="modal__close" 
           type="button" 
-          v-on:click="closeModal">
+          @click="closeModal">
           {{getText()}}
         </button>
+
         <p class="modal__warning">Рекомендуем сменить пароль, если заметили подозрительную активность в профиле</p>
-        <form class="modal__form form" action="#" method="post" @submit.prevent="submitHandler">
-         
+
+        <form class="modal__form form" action="#" method="post" @submit.prevent="onFormSubmit">
           <FormControl
             v-model:value="newPasswordRepeat" 
             className="modal__form-control" 
             labelText="Новый пароль" 
             id="new-password" 
-            placeholder="Введите новый пароль" />
+            placeholder="Введите новый пароль" 
+          />
           <FormControl 
             v-model:value="newPasswordRepeat"
             className="modal__form-control" 
             labelText="Повторите новый пароль" 
             id="new-password-repeat" 
-            placeholder="Повторите новый пароль" />
-
-          <Checkbox checkboxText="Выйти со всех других устройств" id="end-sessions-modal" checked/>
-           <div class="form__errors-wrap" v-if="errors.length">
-            <ul class="form__errors">
-              <li class="form__error" v-bind:key="error" v-for="error in errors">{{ error }}</li>
-            </ul>
-          </div>
-
-          <SubmitButton v-on:click="showMessage" submitButtonName="Сменить пароль" />
+            placeholder="Повторите новый пароль" 
+          />
+          <Checkbox className="modal__form-control" checkboxText="Выйти со всех других устройств" id="end-sessions-modal" checked/>
+          <SubmitButton @click="showMessage" submitButtonName="Сменить пароль" />
         </form>
-        <SuccessMessage v-if="isSubmit" />
+
+        <SuccessMessage v-if="isSubmit" @success-close="closeModal" />
       </div>
     </div>
   </div>
@@ -105,16 +103,16 @@ export default {
   data() {
     return {
       getText() {
-        if(window.innerWidth < 751) {
+        if(window.innerWidth <= 751) {
           return 'Назад'
         } 
         return 'Закрыть'
       },
-
       isSubmit: false,
       regExp: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
       newPassword: '',
       newPasswordRepeat: '',
+      pageBody: document.querySelector('.page-body'),
       errors: {
         newPassword: null,
         newPasswordRepeat: null,
@@ -123,43 +121,44 @@ export default {
   },
   methods: {
     openModal() {
-      document.querySelector('.modal').classList.add('modal--show');
-      document.querySelector('.page-body').classList.add('page-body--overflow-hidden');
+      this.$refs.modalWindow.classList.add('modal--show');
+      this.pageBody.classList.add('page-body--overflow-hidden');
     },
 
     closeModal() {
-      document.querySelector('.modal').classList.remove('modal--show');
-      document.querySelector('.page-body').classList.remove('page-body--overflow-hidden');
+      this.$refs.modalWindow.classList.remove('modal--show');
+      this.pageBody.classList.remove('page-body--overflow-hidden');
+      this.isSubmit = false;
     },
 
-    formIsValid() {
+    isValid() {
       let isValid = true
 
       if (!this.newPassword) {
-        this.errors.newPassword = 'Введите пароль'
-        isValid = false
-      } else if(!(this.regExp.test(this.newPassword))) {
-        this.errors.newPassword = 'Пароль должен состоять как минимум из 8 символов, иметь хотя бы одну букву и одно число'
-        isValid = false
+        this.errors.newPassword = 'Введите пароль';
+        isValid = false;
+      } else if (!(this.regExp.test(this.newPassword))) {
+        this.errors.newPassword = 'Пароль должен состоять как минимум из 8 символов, иметь хотя бы одну букву и одно число';
+        isValid = false;
       } else {
-        this.errors.newPassword = null
+        this.errors.newPassword = null;
       }
 
-      if(this.newPassword && this.newPasswordRepeat && (this.newPasswordRepeat !== this.newPassword)) {
-        this.errors.newPasswordRepeat = 'Введенные пароли не совпадают'
-        isValid = false
+      if (this.newPassword && this.newPasswordRepeat && (this.newPasswordRepeat !== this.newPassword)) {
+        this.errors.newPasswordRepeat = 'Введенные пароли не совпадают';
+        isValid = false;
       } else if (!this.newPasswordRepeat) {
-        this.errors.newPasswordRepeat = 'Повторите пароль'
-        isValid = false
+        this.errors.newPasswordRepeat = 'Повторите пароль';
+        isValid = false;
       } else {
-        this.errors.newPasswordRepeat = null
+        this.errors.newPasswordRepeat = null;
       }
 
       return isValid
     },
 
-    submitHandler() {
-      if (this.formIsValid()) {
+    onFormSubmit() {
+      if (this.isValid()) {
         this.openModal();
       }
     },
@@ -174,12 +173,14 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'sass/global.scss';
-@import 'sass/blocks/info.scss';
-@import 'sass/blocks/modal.scss';
-@import 'sass/blocks/notion.scss';
-@import 'sass/blocks/form.scss';
-@import 'sass/blocks/page-body.scss';
+
+@import "sass/global.scss";
+@import "sass/blocks/info.scss";
+@import "sass/blocks/notion.scss";
+@import "sass/blocks/form.scss";
+@import "sass/blocks/modal.scss";
+@import "sass/blocks/page-body.scss";
+@import "sass/blocks/success.scss";
 
 .app {
   font-family: "Open Sans", Verdana, sans-serif;
@@ -191,9 +192,7 @@ export default {
   margin: 0 auto;
     
   @media(max-width: $tablet-width-only) {
-    // padding-top: 64px;
     max-width: 680px;
-    // margin: 0 auto;
   }
 
   @media(max-width: $mobile-width-only) {
@@ -213,6 +212,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
   padding-top: 62px;
 
   @media(max-width: $mobile-width-only) {
